@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PersonRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 class Person
@@ -14,9 +15,11 @@ class Person
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le prénom ne peut pas être vide")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
@@ -35,7 +38,7 @@ class Person
         return $this->lastname;
     }
 
-    public function setLastname(string $lastname): static
+    public function setLastname(?string $lastname): static
     {
         $this->lastname = $lastname;
 
@@ -47,7 +50,7 @@ class Person
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): static
+    public function setFirstname(?string $firstname): static
     {
         $this->firstname = $firstname;
 
@@ -59,7 +62,7 @@ class Person
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
         $this->email = $email;
 

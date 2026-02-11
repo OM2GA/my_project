@@ -8,23 +8,32 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PersonController extends AbstractController
 {
     #[Route('/person/add', name: 'app_person_add', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function create(Request $request, EntityManagerInterface $entityManager, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
         $person = new Person();
-        
-        $person->setFirstname($data['firstname']);
-        $person->setLastname($data['lastname']);
-        $person->setEmail($data['email']);
+        $person->setFirstname($data['firstname'] ?? null);
+        $person->setLastname($data['lastname'] ?? null);
+        $person->setEmail($data['email'] ?? null);
         $person->setBirthdate(new \DateTime($data['birthdate']));
 
+        $errors = $validator->validate($person);
+
+        if (count($errors) > 0) {
+            $listErrors = [];
+            foreach ($errors as $error) {
+                $listErrors[] = $error->getPropertyPath() . ' : ' . $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $listErrors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         $entityManager->persist($person);
-        
         $entityManager->flush();
 
         return new JsonResponse(['status' => 'Person created'], JsonResponse::HTTP_CREATED);
