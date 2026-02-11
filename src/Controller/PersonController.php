@@ -29,4 +29,24 @@ class PersonController extends AbstractController
 
         return new JsonResponse(['status' => 'Person created'], JsonResponse::HTTP_CREATED);
     }
+
+    #[Route('/person/{id}', name: 'app_person_get', methods: ['GET'])]
+    public function getPerson(Person $person): JsonResponse
+    {
+        return new JsonResponse([
+            'id' => $person->getId(),
+            'lastname' => $person->getLastname(),
+            'firstname' => $person->getFirstname(),
+            'email' => $person->getEmail(),
+            'birthdate' => $person->getBirthdate()->format('Y-m-d')
+        ]);
+    }
+    #[Route('/person/{id}', name: 'app_person_delete', methods: ['DELETE'])]
+    public function delete(Person $person, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $entityManager->remove($person);
+        $entityManager->flush();
+
+        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
 }
