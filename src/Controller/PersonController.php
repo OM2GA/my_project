@@ -55,7 +55,6 @@ class PersonController extends AbstractController
             'lastname' => $person->getLastname(),
             'email' => $person->getEmail(),
             'birthdate' => $person->getBirthdate()->format('Y-m-d'),
-            // On ajoute l'adresse si elle existe
             'address' => $person->getAddress() ? [
                 'street' => $person->getAddress()->getStreet(),
                 'zipcode' => $person->getAddress()->getZipcode(),
