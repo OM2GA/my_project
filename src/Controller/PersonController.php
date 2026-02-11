@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Entity\Address;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,8 +24,14 @@ class PersonController extends AbstractController
         $person->setEmail($data['email'] ?? null);
         $person->setBirthdate(new \DateTime($data['birthdate']));
 
-        $errors = $validator->validate($person);
+        $address = new Address();
+        $address->setStreet($data['address']['street']);
+        $address->setZipcode($data['address']['zipcode']);
+        $address->setCity($data['address']['city']);
 
+        $person->setAddress($address);
+
+        $errors = $validator->validate($person);
         if (count($errors) > 0) {
             $listErrors = [];
             foreach ($errors as $error) {
