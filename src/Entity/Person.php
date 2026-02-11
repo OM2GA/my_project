@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PersonRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Address;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 class Person
@@ -38,6 +39,10 @@ class Person
 
     #[ORM\Column]
     private ?\DateTime $birthdate = null;
+
+    #[ORM\OneToOne(targetEntity: Address::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Address $address = null;
 
     public function getId(): ?int
     {
@@ -88,6 +93,18 @@ class Person
     public function setBirthdate(\DateTime $birthdate): static
     {
         $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(Address $address): static
+    {
+        $this->address = $address;
 
         return $this;
     }
