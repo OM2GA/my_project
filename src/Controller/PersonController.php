@@ -51,10 +51,16 @@ class PersonController extends AbstractController
     {
         return new JsonResponse([
             'id' => $person->getId(),
-            'lastname' => $person->getLastname(),
             'firstname' => $person->getFirstname(),
+            'lastname' => $person->getLastname(),
             'email' => $person->getEmail(),
-            'birthdate' => $person->getBirthdate()->format('Y-m-d')
+            'birthdate' => $person->getBirthdate()->format('Y-m-d'),
+            // On ajoute l'adresse si elle existe
+            'address' => $person->getAddress() ? [
+                'street' => $person->getAddress()->getStreet(),
+                'zipcode' => $person->getAddress()->getZipcode(),
+                'city' => $person->getAddress()->getCity(),
+            ] : null
         ]);
     }
     #[Route('/person/{id}', name: 'app_person_delete', methods: ['DELETE'])]
