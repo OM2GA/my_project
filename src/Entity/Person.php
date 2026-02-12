@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Address;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 class Person
@@ -24,6 +25,7 @@ class Person
         minMessage: "Le nom doit contenir au moins {{ limit }} caractères",
         maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères"
     )]
+    #[Groups(['article:read'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
@@ -32,6 +34,7 @@ class Person
         max: 50,
         minMessage: "Le prénom doit contenir au moins {{ limit }} caractères"
     )]
+    #[Groups(['article:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
@@ -143,7 +146,6 @@ class Person
     public function removeArticle(Article $article): static
     {
         if ($this->articles->removeElement($article)) {
-            // set the owning side to null (unless already changed)
             if ($article->getAuthor() === $this) {
                 $article->setAuthor(null);
             }
