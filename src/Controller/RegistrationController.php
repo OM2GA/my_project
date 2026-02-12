@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Address;
+use App\Entity\Person;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,20 +20,29 @@ class RegistrationController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['email']) || !isset($data['password'])) {
-            return new JsonResponse(['error' => 'Email and password are required'], Response::HTTP_BAD_REQUEST);
-        }
+        $address = new Address();
+        $address->setStreet($data['address']['street'] ?? 'Rue inconnue');
+        $address->setZipcode($data['address']['zipcode'] ?? '00000');
+        $address->setCity($data['address']['city'] ?? 'Ville inconnue');
+
+        $person = new Person();
+        $person->setFirstname($data['firstname'] ?? 'John');
+        $person->setLastname($data['lastname'] ?? 'Doe');
+        $person->setBirthdate(new \DateTime($data['birthdate'] ?? '2000-01-01'));
+        $person->setAddress($address); 
 
         $user = new User();
         $user->setEmail($data['email']);
-        
         $user->setPassword(
             $userPasswordHasher->hashPassword(
                 $user,
                 $data['password']
             )
         );
+        
+        $user->setPerson($person);
 
+        $entityManager->persist($person); 
         $entityManager->persist($user);
         $entityManager->flush();
 
