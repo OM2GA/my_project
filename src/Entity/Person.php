@@ -55,6 +55,9 @@ class Person
     #[ORM\OneToMany(targetEntity: Article::class, mappedBy: 'author', orphanRemoval: true)]
     private Collection $articles;
 
+    #[ORM\OneToOne(mappedBy: 'person', cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
@@ -150,6 +153,28 @@ class Person
                 $article->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        // unset the owning side of the relation if necessary
+        if ($user === null && $this->user !== null) {
+            $this->user->setPerson(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($user !== null && $user->getPerson() !== $this) {
+            $user->setPerson($this);
+        }
+
+        $this->user = $user;
 
         return $this;
     }
