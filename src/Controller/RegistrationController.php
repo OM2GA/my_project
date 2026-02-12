@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Address;
 use App\Entity\Person;
 use App\Entity\User;
+use App\Service\EmailNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,6 +16,13 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
+    private EmailNotifier $emailNotifier;
+
+    public function __construct(EmailNotifier $emailNotifier)
+    {
+        $this->emailNotifier = $emailNotifier;
+    }
+
     #[Route('/api/register', name: 'app_register', methods: ['POST'])]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -31,7 +39,7 @@ class RegistrationController extends AbstractController
         $person = new Person();
         $person->setFirstname($data['firstname'] ?? 'John');
         $person->setLastname($data['lastname'] ?? 'Doe');
-        $person->setEmail($data['email']); 
+        $person->setEmail($data['email']);
         try {
             $person->setBirthdate(new \DateTime($data['birthdate'] ?? 'now'));
         } catch (\Exception $e) {
@@ -47,7 +55,6 @@ class RegistrationController extends AbstractController
                 $data['password']
             )
         );
-        
         $user->setPerson($person);
 
         $entityManager->persist($address);
@@ -55,6 +62,8 @@ class RegistrationController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return new JsonResponse(['message' => 'User created successfully'], Response::HTTP_CREATED);
+        $this->emailNotifier->sendWelcomeEmail($user->getEmail());
+
+        return new JsonResponse(['message' => 'User created successfully and email sent'], Response::HTTP_CREATED);
     }
 }
