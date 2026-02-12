@@ -40,6 +40,7 @@ class Person
     #[ORM\Column(length: 255)]
     #[Assert\Email(message: "L'email {{ value }} n'est pas valide")]
     #[Assert\NotBlank(message: "L'email est obligatoire")]
+    #[Groups(['article:read'])]
     private ?string $email = null;
 
     #[ORM\Column]
