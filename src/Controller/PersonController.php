@@ -67,7 +67,12 @@ class PersonController extends AbstractController
     {
         $entityManager->remove($person);
         $entityManager->flush();
-
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    }
+
+    #[Route('/person/{id}/articles', name: 'app_person_articles', methods: ['GET'])]
+    public function getArticles(Person $person): JsonResponse
+    {
+        return $this->json($person->getArticles(), 200, [], ['groups' => ['article:read']]);
     }
 }
